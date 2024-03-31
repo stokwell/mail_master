@@ -1,0 +1,85 @@
+version: '3'
+
+volumes:
+  postgres-data: 
+  prometheus-data:
+  rabbitmq_data:
+    driver: local
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80" 
+
+  mail_master:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+    environment:
+      MIX_ENV: dev
+    command: mix phx.server
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+      - rabbitmq
+    restart: on-failure
+
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mail_master_dev
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3.9.9-management
+    ports:
+      - "5672:5672" 
+      - "15672:15672" 
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest" 
+      RABBITMQ_DEFAULT_PASS: "guest" 
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  # postgres_exporter:
+  #   image: wrouesnel/postgres_exporter:v0.7.0
+  #   ports:
+  #     - '9187:9187'
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DATA_SOURCE_USER: postgres
+  #     DATA_SOURCE_PASS: postgres
+  #     DATA_SOURCE_URI: postgres:5432/?sslmode=disable
+
+  # prometheus:
+  #   image: prom/prometheus:v2.13.0
+  #   ports:
+  #     - '9090:9090'
+  #   volumes:
+  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus-data:/prometheus
+  #   command:
+  #     - '--config.file=/etc/prometheus/config.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #     - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+  #     - '--web.console.templates=/usr/share/prometheus/consoles'
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   ports:
+  #     - '5050:80'
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   volumes:
+  #     - ./pgadmin:/var/lib/pgadmin
