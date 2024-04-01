@@ -1,6 +1,14 @@
 # Mail Master
 
+A scatch of event driven architecture using Elixir and  Broadway with RabbitMQ. In this architecture, Elixir/Phoenix applications communicate asynchronously via RabbitMQ using the AMQP protocol. RabbitMQ serves as the message broker, facilitating event distribution. Broadway, a streaming library, processes incoming messages, enabling scalable and fault-tolerant data processing pipelines. 
+
+## Architectual Overview
+
 ![Architectual overview](image.png)
+
+## RabbitMQ metrics
+
+![RabbitMQ metrics](rabbitmq.png)
 
 ## Links
 
