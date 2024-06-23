@@ -7,20 +7,10 @@ volumes:
     driver: local
 
 services:
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80" 
-
   mail_master:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: mail_master:latest
     stdin_open: true
     tty: true
-    environment:
-      MIX_ENV: dev
-    command: mix phx.server
     ports:
       - "4000:4000"
     depends_on:
